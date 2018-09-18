@@ -1,13 +1,16 @@
-# !flask/bin/python
 from flask import Flask
 from flask import request
-
+from crash_detector import CrashDetector
 
 app = Flask(__name__)
 
-@app.route('/')
+cd = CrashDetector()
+
+
+@app.route('/subscribe')
 def index():
-    return "Hello, World!"
+    return str(cd.new_car())
+
 
 @app.route('/<id>/position', methods=['POST'])
 def position(id):
@@ -26,12 +29,12 @@ def position(id):
     
     print(request.is_json)
     content = request.get_json()
+    lat, long, vel, ts = content["lat"], content["long"], content["vel"], content["timestamp"]
     # call the function of the application logic
-    print(content)
-    return 'JSON posted'
+    crash_imminent = cd.position_update(id, lat, long, vel, ts)
+    
+    return crash_imminent
 
 if __name__ == '__main__':
-    # instance the application logic
-    
     # run the app
-    app.run(port=5000, debug=True)
+    app.run(host="10.101.0.66", port=8080, debug=True)
