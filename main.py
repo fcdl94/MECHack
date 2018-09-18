@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request
+from flask import Response
 from crash_detector import CrashDetector
 
 app = Flask(__name__)
@@ -12,6 +13,19 @@ def index():
     return str(cd.new_car())
 
 
+@app.route('/crosses', methods=['POST'])
+def add_crosses():
+    content = request.get_json()
+    idc = cd.update_crosses(content["lat"], content["lng"], content["r"])
+    
+    if request.is_json:
+        status = 201
+    else:
+        status = 400
+    response = Response(str(idc), status=status)
+    return response
+
+
 @app.route('/<id>/position', methods=['POST'])
 def position(id):
     # id : 01
@@ -19,22 +33,24 @@ def position(id):
     # long: 20
     # vel: 86
     # timestamp: 10003405.00
-    # add position in dict
-    # if forecast is in some crossing -> add to crossing
-    #       if other cars in crossing
-    #           check if in the same time
-    #               if yes respond with "WARNING"
-    # otherwise
-    #   respond with "ok"
-    
+
     print(request.is_json)
     content = request.get_json()
-    lat, long, vel, ts = content["lat"], content["long"], content["vel"], content["timestamp"]
-    # call the function of the application logic
-    crash_imminent = cd.position_update(id, lat, long, vel, ts)
     
-    return crash_imminent
+    print(content)
+    #lat, long, vel, ts = content["lat"], content["lng"], content["vel"], content["timestamp"]
+    # call the function of the application logic
+    #crash_imminent = cd.position_update(id, lat, long, vel, ts)
+    
+    if request.is_json:
+        status = 201
+    else:
+        status = 400
+    response = Response("XXX", status=status)
 
+    return response
+    
+    
 if __name__ == '__main__':
     # run the app
     app.run(host="10.101.0.66", port=8080, debug=True)
