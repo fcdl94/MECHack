@@ -7,11 +7,21 @@ app = Flask(__name__)
 
 cd = CrashDetector()
 
-
 @app.route('/subscribe')
 def index():
     return str(cd.new_car())
 
+@app.route('/crosses', methods=['GET'])
+def get_crosses():
+    crosses = cd.get_crosses()
+    response = Response(str(crosses), status=200)
+    return response
+
+@app.route('/cars', methods=['GET'])
+def get_cars():
+    cars = cd.get_cars()
+    response = Response(str(cars), status=200)
+    return response
 
 @app.route('/crosses', methods=['POST'])
 def add_crosses():
@@ -38,15 +48,15 @@ def position(id):
     content = request.get_json()
     
     print(content)
-    #lat, long, vel, ts = content["lat"], content["lng"], content["vel"], content["timestamp"]
+    lat, long, vel, ts = content["lat"], content["lng"], content["vel"], content["timestamp"]
     # call the function of the application logic
-    #crash_imminent = cd.position_update(id, lat, long, vel, ts)
+    crash_imminent = cd.position_update(id, lat, long, vel, ts)
     
     if request.is_json:
         status = 201
     else:
         status = 400
-    response = Response("XXX", status=status)
+    response = Response(crash_imminent, status=status)
 
     return response
     
